@@ -29,7 +29,11 @@ export function registerRoutes(app: Express): Server {
       const vendor = await storage.createVendor(validatedData);
       res.status(201).json(vendor);
     } catch (error) {
-      res.status(400).json({ message: "Invalid vendor data" });
+      console.error("Vendor creation error:", error);
+      res.status(400).json({ 
+        message: "Invalid vendor data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
@@ -342,6 +346,20 @@ export function registerRoutes(app: Express): Server {
       res.json(updatedDispute);
     } catch (error) {
       res.status(400).json({ message: "Failed to update dispute" });
+    }
+  });
+
+  // Users route (admin only)
+  app.get("/api/users", async (req, res) => {
+    if (!req.isAuthenticated() || req.user?.role !== "admin") {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users" });
     }
   });
 

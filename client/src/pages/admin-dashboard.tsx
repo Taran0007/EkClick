@@ -58,6 +58,11 @@ export default function AdminDashboard() {
     enabled: !!user && user.role === "admin",
   });
 
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["/api/users"],
+    enabled: !!user && user.role === "admin",
+  });
+
   const vendorForm = useForm<VendorData>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
@@ -409,8 +414,19 @@ export default function AdminDashboard() {
                       </DialogHeader>
                       <form onSubmit={vendorForm.handleSubmit((data) => addVendorMutation.mutate(data))} className="space-y-4">
                         <div>
-                          <Label htmlFor="userId">User ID</Label>
-                          <Input {...vendorForm.register("userId")} placeholder="User ID of the vendor account" />
+                          <Label htmlFor="userId">Select User</Label>
+                          <Select onValueChange={(value) => vendorForm.setValue("userId", value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a user for this vendor" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {allUsers.map((user: any) => (
+                                <SelectItem key={user.id} value={user.id}>
+                                  {user.fullName} (@{user.username}) - {user.role}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         
                         <div>
