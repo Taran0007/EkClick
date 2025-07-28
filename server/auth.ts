@@ -22,10 +22,35 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  // Handle both bcrypt and scrypt formats for compatibility
+  if (stored.startsWith('$2a$') || stored.startsWith('$2b$') || stored.startsWith('$2y$')) {
+    // This is a bcrypt hash, but we need to handle it differently
+    // For now, we'll recreate the user with scrypt if they login successfully with a temp check
+    console.log('Warning: Found bcrypt hash, user needs password migration');
+    return false; // Force password reset or recreation
+  }
+  
+  // Handle scrypt format: hash.salt
+  const parts = stored.split(".");
+  if (parts.length !== 2) {
+    console.log('Invalid password format:', stored);
+    return false;
+  }
+  
+  const [hashed, salt] = parts;
+  if (!salt) {
+    console.log('Missing salt in password hash');
+    return false;
+  }
+  
+  try {
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error('Error comparing passwords:', error);
+    return false;
+  }
 }
 
 export function setupAuth(app: Express) {
@@ -53,7 +78,7 @@ export function setupAuth(app: Express) {
   );
 
   passport.serializeUser((user, done) => done(null, user.id));
-  passport.deserializeUser(async (id: number, done) => {
+  passport.deserializeUser(async (id: string, done) => {
     const user = await storage.getUser(id);
     done(null, user);
   });
@@ -140,9 +165,14 @@ export function setupAuth(app: Express) {
           const existingUser = await storage.getUserByUsername(userData.username);
           if (!existingUser) {
             const user = await storage.createUser({
-              ...userData,
+              username: userData.username,
+              email: userData.email,
               password: await hashPassword(userData.password),
-              is_active: true
+              role: userData.role as any,
+              fullName: userData.full_name,
+              phone: userData.phone,
+              address: userData.address,
+              isActive: true
             });
             createdUsers.push({ username: user.username, role: user.role });
           } else {
