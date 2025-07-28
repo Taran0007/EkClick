@@ -90,4 +90,82 @@ export function setupAuth(app: Express) {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
   });
+
+  // Create demo users endpoint (for development only)
+  app.post("/api/create-demo-users", async (req, res) => {
+    try {
+      const demoUsers = [
+        {
+          username: 'admin',
+          email: 'admin@eclick.com',
+          password: 'admin123',
+          role: 'admin',
+          full_name: 'System Administrator',
+          phone: '+1234567890',
+          address: '123 Admin Street, City'
+        },
+        {
+          username: 'vendor1',
+          email: 'vendor1@eclick.com',
+          password: 'vendor123',
+          role: 'vendor',
+          full_name: 'Pizza Palace Owner',
+          phone: '+1234567891',
+          address: '456 Vendor Avenue, City'
+        },
+        {
+          username: 'delivery1',
+          email: 'delivery1@eclick.com',
+          password: 'delivery123',
+          role: 'delivery',
+          full_name: 'John Delivery Driver',
+          phone: '+1234567892',
+          address: '789 Delivery Lane, City'
+        },
+        {
+          username: 'customer1',
+          email: 'customer1@eclick.com',
+          password: 'customer123',
+          role: 'user',
+          full_name: 'Jane Customer',
+          phone: '+1234567893',
+          address: '321 Customer Road, City'
+        }
+      ];
+
+      const createdUsers = [];
+      for (const userData of demoUsers) {
+        try {
+          // Check if user already exists
+          const existingUser = await storage.getUserByUsername(userData.username);
+          if (!existingUser) {
+            const user = await storage.createUser({
+              ...userData,
+              password: await hashPassword(userData.password),
+              is_active: true
+            });
+            createdUsers.push({ username: user.username, role: user.role });
+          } else {
+            createdUsers.push({ username: userData.username, role: userData.role, status: 'already exists' });
+          }
+        } catch (error) {
+          console.error(`Error creating user ${userData.username}:`, error);
+        }
+      }
+
+      res.json({ 
+        message: 'Demo users creation completed',
+        users: createdUsers,
+        credentials: {
+          admin: { username: 'admin', password: 'admin123' },
+          vendor: { username: 'vendor1', password: 'vendor123' },
+          delivery: { username: 'delivery1', password: 'delivery123' },
+          customer: { username: 'customer1', password: 'customer123' }
+        }
+      });
+    } catch (error) {
+      console.error('Error creating demo users:', error);
+      res.status(500).json({ error: 'Failed to create demo users' });
+    }
+  });
 }
