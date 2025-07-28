@@ -1,0 +1,174 @@
+Here is a fully optimized, detailed prompt for AI coding agents to build your multi-vendor delivery website “Ek Click A2Z Solutions” (“E-Click”) from scratch—using a modern, scalable stack (React.js frontend, Node.js/Express backend, PostgreSQL database). This prompt is structured for best-practice implementation and ensures every dashboard, workflow, and feature is clear. 
+
+# AI Coding Agent Prompt – Ek Click A2Z Solutions (“E-Click”) Delivery Platform
+
+## Overview
+
+Build a web platform for multi-vendor, city-based delivery (goods, groceries, parcels), including **admin, vendor, user, and delivery personnel dashboards**. Prioritize a modern, responsive, animated UI, clean RESTful API structure, real-time features, and security best practices. Code quality, modularity, documentation, and future extensibility (mobile apps) are critical.
+
+## 1. Stack & Architectural Rules
+
+- **Frontend:** React.js, TypeScript, React Router, Redux Toolkit or Zustand, TailwindCSS or Material-UI, Framer Motion (animations)
+- **Backend:** Node.js, Express.js (TypeScript), JWT authentication, RESTful APIs, Socket.io (for chat/live statuses)
+- **Database:** PostgreSQL (with Prisma ORM)
+- **CI/CD & DevOps:** Docker, GitHub Actions
+- **Testing:** Jest (unit), Cypress (e2e)
+- **Documentation:** JSDoc, OpenAPI (Swagger)
+
+## 2. Core Principles
+
+- Modular folder structure and code reuse (DRY)
+- Responsive, mobile-first design
+- Role-based access control for all dashboards
+- Each feature and API endpoint must include inline code comments
+- User data is validated and sanitized both frontend and backend
+- Implement error boundaries and graceful error handling
+
+## 3. High-Level Development Steps
+
+### 3.1 Initial Setup
+
+1. Scaffold a monorepo: `/frontend` (React), `/backend` (Node/Express)
+2. Set up PostgreSQL DB schema with Prisma ORM: Entities for users, vendors, delivery personnel, admins, shops, products, orders, chats, disputes, coupons, referrals.
+3. Build authentication system (JWT, role-based RBAC)
+
+### 3.2 Dashboards (Build in this order)
+
+#### A. **Admin Dashboard**
+
+- Vendor and delivery personnel onboarding (admin-only onboarding, including manual fee entry)
+- User, vendor, courier management (edit, suspend, reset password)
+- Dispute management/queue: View, resolve, add notes
+- Orders: View/filter all, assign deliveries if no courier available
+- Coupon/referral system (CRUD, analytics)
+- Reporting & analytics panel (user stats, order stats, referral/coupon usage)
+
+#### B. **Vendor Dashboard**
+
+- Vendor profile management/edit
+- Product/service catalog management (CRUD)
+- Order management: New orders, status updates, view order history
+- Live chat with users and delivery personnel on order
+- Delivery tracking integration for orders
+
+#### C. **Delivery Personnel Dashboard**
+
+- Manage and update availability status (available/unavailable)
+- List/accept assigned deliveries; live order status updates (Picked Up, In Transit, Delivered)
+- View order details, user/vendor contact info (after assignment)
+- View delivery history and stats (times, feedback, routes)
+- Live chat with users/vendors
+
+#### D. **User Dashboard**
+
+- Browse/search shops, products, categories—filters for location, business type
+- Book deliveries: Select products or custom pickup/drop (point-to-point orders)
+- Track orders: See status, ETA, and live updates as driver updates order phase
+- Payment instructions: Info for on-delivery cash or UPI QR payment (no online payment in v1)
+- Chat with vendor/delivery personnel after booking, view courier info (name, image, vehicle plate)
+- Rate and review vendors and couriers post-delivery
+- Referral panel: Unique referral link/code, track usage and rewards
+- View/apply coupons, see eligible offers
+- Flag/report issues per order (dispute form links to admin queue)
+
+### 3.3 Feature Requirements & Best Practices
+
+#### User Registration/Login
+
+- JWT-secured endpoints for all roles (admin, vendor, delivery, user)
+- Passwords never stored in plain text (bcrypt hashing)
+- Role-based redirect after login
+
+#### Product & Shop Catalogs
+
+- Catalogs are vendor-managed. Products have categories, prices, descriptions, images.
+- Publicly browsable (no login required to view).
+
+#### Booking & Orders
+
+- Orders contain type (shop catalog or point-to-point custom), user, vendor, address, pickup/drop, status
+- Only show assignment/driver info post-booking
+- Order state machine: Only allow valid transitions (e.g. can’t “deliver” before “pickup”)
+
+#### Payments
+
+- Display instructions for cash/UPI payment to courier; mark order "Paid" manually in dashboard after confirmation.
+- Vendor fee status managed by admin entry.
+
+#### Referral & Coupon System
+
+- Each user gets unique referral code on signup; logic for reward assignment on successful referrals
+- Admin CRUD for coupons/referrals, enforce unique use where necessary
+
+#### Ratings & Reviews
+
+- Users can rate vendors and couriers after delivery; ratings visible in dashboards
+
+#### Security & Validation
+
+- All sensitive endpoints protected via middleware
+- Backend: Validate all incoming data, sanitize strings, enforce min/max values
+- Logging of all admin activity
+
+#### Chat & Real-Time
+
+- Use Socket.io for chat (order-level junction table); authenticate all sockets.
+- Show chat notifications in dashboards (with unread badges).
+
+#### Notifications
+
+- Use in-app (web) notifications for all important events (order status, chat messages, assignment)
+- No SMS/email in initial build, but structure for easy future integration
+
+## 4. Directory Structure (Example)
+
+```plaintext
+/ekclick-platform/
+  /frontend/
+    /src/
+      /components/
+      /pages/
+      /store/
+      /utils/
+      ...
+  /backend/
+    /src/
+      /controllers/
+      /models/
+      /routes/
+      /services/
+      /middleware/
+      ...
+  /prisma/
+    schema.prisma
+  /tests/
+    /unit/
+    /e2e/
+```
+
+## 5. Implementation Notes for AI Agents
+
+- Scaffold dashboards in order: admin → vendor → delivery personnel → user
+- After dashboards, wire up core models: users, products, vendors, orders
+- Every CRUD endpoint must return standardized JSON
+- All cross-panel messaging (chat, notifications) must be modular for easy mobile integration later
+- Every step must be documented: function-level JSDoc, usage examples, and OpenAPI specs
+- After major milestones, run automated tests and document known issues or limitations
+- Always use meaningful variable/function names, componentize React code for maximum reuse
+- Enforce code linting and types across project
+
+## 6. MVP Delivery & Proof of Completion
+
+**Minimum Viable Product includes:**
+
+- All dashboards with authentication and basic navigation
+- Vendor onboarding (admin adds), basic catalog, and shop browsing
+- User order flow: view shops, book, assign driver/admin, display payment info, dashboard order status
+- Chat and rating per completed order
+- Referral system active, coupon system seeded
+- All dashboards responsive and visually modern
+- Automated tests for main flows; code fully commented
+
+The AI agent must proceed feature-by-feature, never skipping prerequisites, and must always ensure that code is safe, maintainable, and ready for extension to a future mobile app. All implementation should match the above feature breakdown and adhere to industry best practices for security, accessibility, and performance.
+
+Sources
