@@ -25,3 +25,9 @@ services:
         value: neondb_owner
       - key: PGPASSWORD
         value: npg_0hPVWOncZaw5
+
+  - type: static
+    name: ekclick-frontend
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
