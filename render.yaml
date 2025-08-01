@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: ekclick-backend
+    env: node
+    rootDir: .
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SESSION_SECRET
+        value: tq4FoTok1/POKIrXljS+ZbjjOGr5BjdKFsDeF9FytyGW5Nwg6V7JAG8dFCPAMg5KOc0xDeedlX7vTPPWR7xdJg==
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_0hPVWOncZaw5@ep-orange-rain-a2btlbtu.eu-central-1.aws.neon.tech/neondb?sslmode=require
+      - key: PGDATABASE
+        value: neondb
+      - key: PGHOST
+        value: ep-orange-rain-a2btlbtu.eu-central-1.aws.neon.tech
+      - key: PGPORT
+        value: "5432"
+      - key: PGUSER
+        value: neondb_owner
+      - key: PGPASSWORD
+        value: npg_0hPVWOncZaw5
